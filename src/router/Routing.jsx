@@ -12,7 +12,7 @@ const Routing = () => {
         if (!user) {
             return <Navigate to="/admin/login" replace />;
         }
-        if (user.email !== import.meta.env.ADMIN_EMAIL) {
+        if (user.email !== import.meta.env.VITE_ADMIN_EMAIL) {
             return <Navigate to="/admin/login" replace />;
         }
 

@@ -6,16 +6,18 @@ import { Context } from '../context/Context.jsx'
 const useAdmin = () => {
     const navigate = useNavigate();
     const { setUser } = useContext(Context);
-    const handleAdminLogin = async (username, password) => {
+    const handleAdminLogin = async (email, password) => {
+        let response;
         try {
-            const response = await login(username, password);
-            setUser(response);
-            navigate('/admin'); // Navigate to the admin page after successful login
-            return response;
+            response = await login(email, password);
         } catch (error) {
             throw new Error(error.response?.data?.message || 'Login failed');
         }
-    }
+
+        setUser(response);
+        navigate('/admin', { replace: true });
+        return response;
+    };
     const handleAddProject = async (projectData) => {
         try {
             const response = await addProject(projectData);
