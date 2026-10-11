@@ -7,66 +7,54 @@ import {
   GitHub,
   LinkedIn,
   SendRounded,
-  CheckCircleOutlineRounded,
-  ErrorOutlineRounded,
 } from "@mui/icons-material";
+import  useAdmin  from "../../../hooks/useAdmin";
 import { getColors } from "../../getColors";
 
 // ======================================================================
-// EDIT ONLY THIS OBJECT to customize the Contact section.
-//
-// How the form sends messages:
-// - If `formEndpoint` is set (e.g. a Formspree URL like
-//   "https://formspree.io/f/yourFormId"), the form posts to it.
-// - If it is left empty, the form opens the visitor's email app with the
-//   message pre-filled, addressed to `email`.
+// EDIT ONLY THIS OBJECT to change the text, contact details and links.
+// Leave `href` out of a method to show it as plain text (e.g. Location).
 // ======================================================================
 const contactData = {
   title: "Contact",
   subtitle:
     "Have a project in mind or want to work together? Send me a message and I'll reply within a day or two.",
-
-  email: "you@example.com",
-  formEndpoint: "",
-
-  // Contact details (icon is optional, href makes the value a link)
   methods: [
-    { label: "Email", value: "you@example.com", href: "mailto:you@example.com", icon: <MailOutlineRounded /> },
-    { label: "Phone", value: "+92 300 0000000", href: "tel:+923000000000", icon: <PhoneOutlined /> },
-    { label: "Location", value: "Your city, Country", icon: <PlaceOutlined /> },
+    { label: "Email", value: "hussainkadir245@gmail.com", href: "mailto:hussainkadir245@gmail", icon: <MailOutlineRounded /> },
+    { label: "Phone", value: "+92 368044668", href: "tel:+92 368044668", icon: <PhoneOutlined /> },
+    { label: "Location", value: "Karachi , Pakistan", icon: <PlaceOutlined /> },
   ],
-
   socials: [
     { label: "GitHub", href: "https://github.com/your-username", icon: <GitHub /> },
     { label: "LinkedIn", href: "https://linkedin.com/in/your-username", icon: <LinkedIn /> },
   ],
-
-  // Form fields: add, remove or reorder. `multiline` makes a textarea.
   formTitle: "Send a message",
+  formNote: "I usually reply within 24 hours.",
   submitLabel: "Send message",
-  fields: [
-    { name: "name", label: "Your name", type: "text", required: true, autoComplete: "name" },
-    { name: "email", label: "Your email", type: "email", required: true, autoComplete: "email" },
-    { name: "subject", label: "Subject", type: "text", required: false },
-    { name: "message", label: "Message", type: "text", required: true, multiline: true, rows: 5 },
-  ],
-
-  messages: {
-    sending: "Sending your message...",
-    success: "Thanks! Your message was sent. I'll get back to you soon.",
-    error: "Something went wrong. Please try again or email me directly.",
-  },
-
-  footerText: "Hussain. Built with React and Material UI.",
 };
 // ======================================================================
 
 export default function Contact({ isDark = true, data = contactData }) {
+  const { handleSendMessage } = useAdmin();
   const colors = getColors(isDark);
 
-  const emptyValues = data.fields.reduce((acc, f) => ({ ...acc, [f.name]: "" }), {});
-  const [values, setValues] = useState(emptyValues);
-  const [status, setStatus] = useState("idle"); // idle | sending | success | error
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const messageData = { name, email, subject, message };
+    // Add your logic here (name, email, subject and message are in state)
+    const response = await handleSendMessage(messageData);
+    console.log("Message sent successfully:", response);
+    // Reset form fields after successful submission
+    setName("");
+    setEmail("");
+    setSubject("");
+    setMessage("");
+  };
 
   const focusRing = {
     "&:focus-visible": { outline: `2px solid ${colors.accent}`, outlineOffset: 2 },
@@ -87,53 +75,11 @@ export default function Contact({ isDark = true, data = contactData }) {
     },
   };
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setValues((prev) => ({ ...prev, [name]: value }));
-    if (status !== "idle" && status !== "sending") setStatus("idle");
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    // No endpoint: open the visitor's email app with the message filled in
-    if (!data.formEndpoint) {
-      const subject = values.subject || `Message from ${values.name || "your portfolio"}`;
-      const body = data.fields
-        .filter((f) => f.name !== "subject")
-        .map((f) => `${f.label}: ${values[f.name]}`)
-        .join("\n");
-      window.location.href = `mailto:${data.email}?subject=${encodeURIComponent(
-        subject
-      )}&body=${encodeURIComponent(body)}`;
-      return;
-    }
-
-    setStatus("sending");
-    try {
-      const response = await fetch(data.formEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(values),
-      });
-      if (response.ok) {
-        setStatus("success");
-        setValues(emptyValues);
-      } else {
-        setStatus("error");
-      }
-    } catch {
-      setStatus("error");
-    }
-  };
-
-  const statusText = status === "idle" ? "" : data.messages[status];
-
   return (
     <Box
       component="section"
       id="contact"
-      sx={{ scrollMarginTop: 90, pt: { xs: 8, md: 12 } }}
+      sx={{ scrollMarginTop: 90, py: { xs: 8, md: 12 } }}
     >
       <Container maxWidth="lg" sx={{ px: { xs: 2.5, sm: 3 } }}>
         <Box
@@ -144,7 +90,7 @@ export default function Contact({ isDark = true, data = contactData }) {
             alignItems: "start",
           }}
         >
-          {/* Left: intro + details */}
+          {/* Left: intro, details, social links */}
           <Box>
             <Typography
               component="h2"
@@ -170,56 +116,59 @@ export default function Contact({ isDark = true, data = contactData }) {
               {data.subtitle}
             </Typography>
 
-            <Box sx={{ mt: 4, display: "grid", gap: 2.25 }}>
+            <Box sx={{ mt: 4, display: "grid", gap: 1.5, maxWidth: 440 }}>
               {data.methods.map((item) => (
-                <Box key={item.label} sx={{ display: "flex", alignItems: "center", gap: 1.75 }}>
-                  {item.icon && (
-                    <Box
-                      aria-hidden
-                      sx={{
-                        display: "grid",
-                        placeItems: "center",
-                        width: 42,
-                        height: 42,
-                        flexShrink: 0,
-                        borderRadius: "11px",
-                        color: colors.accent,
-                        border: `1px solid ${colors.border}`,
-                        "& svg": { fontSize: 20 },
-                      }}
-                    >
-                      {item.icon}
-                    </Box>
-                  )}
+                <Box
+                  key={item.label}
+                  component={item.href ? "a" : "div"}
+                  href={item.href}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.75,
+                    p: 1.75,
+                    textDecoration: "none",
+                    borderRadius: "14px",
+                    background: colors.card,
+                    border: `1px solid ${colors.border}`,
+                    transition: "border-color 150ms ease",
+                    ...(item.href && {
+                      "&:hover": { borderColor: colors.accent },
+                      ...focusRing,
+                    }),
+                  }}
+                >
+                  <Box
+                    aria-hidden
+                    sx={{
+                      display: "grid",
+                      placeItems: "center",
+                      width: 42,
+                      height: 42,
+                      flexShrink: 0,
+                      borderRadius: "11px",
+                      color: colors.accent,
+                      background: colors.hover,
+                      "& svg": { fontSize: 20 },
+                    }}
+                  >
+                    {item.icon}
+                  </Box>
                   <Box sx={{ minWidth: 0 }}>
                     <Typography sx={{ color: colors.muted, fontSize: 13 }}>
                       {item.label}
                     </Typography>
-                    <Typography sx={{ color: colors.text, fontSize: 16, fontWeight: 600, wordBreak: "break-word" }}>
-                      {item.href ? (
-                        <Box
-                          component="a"
-                          href={item.href}
-                          sx={{
-                            color: "inherit",
-                            textDecoration: "none",
-                            borderRadius: "4px",
-                            "&:hover": { color: colors.accent },
-                            ...focusRing,
-                          }}
-                        >
-                          {item.value}
-                        </Box>
-                      ) : (
-                        item.value
-                      )}
+                    <Typography
+                      sx={{ color: colors.text, fontSize: 15.5, fontWeight: 600, wordBreak: "break-word" }}
+                    >
+                      {item.value}
                     </Typography>
                   </Box>
                 </Box>
               ))}
             </Box>
 
-            <Box sx={{ mt: 4, display: "flex", gap: 1 }}>
+            <Box sx={{ mt: 3.5, display: "flex", gap: 1 }}>
               {data.socials.map((item) => (
                 <IconButton
                   key={item.label}
@@ -259,33 +208,66 @@ export default function Contact({ isDark = true, data = contactData }) {
             >
               {data.formTitle}
             </Typography>
+            <Typography sx={{ mt: 0.5, color: colors.muted, fontSize: 14 }}>
+              {data.formNote}
+            </Typography>
 
             <Box sx={{ mt: 3, display: "grid", gap: 2.25 }}>
-              {data.fields.map((field) => (
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                  gap: 2.25,
+                }}
+              >
                 <TextField
-                  key={field.name}
-                  name={field.name}
-                  label={field.label}
-                  type={field.type}
-                  required={field.required}
-                  multiline={field.multiline}
-                  rows={field.multiline ? field.rows || 4 : undefined}
-                  autoComplete={field.autoComplete}
-                  value={values[field.name]}
-                  onChange={handleChange}
+                  name="name"
+                  label="Your name"
+                  autoComplete="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
                   fullWidth
                   sx={fieldSx}
                 />
-              ))}
-            </Box>
+                <TextField
+                  name="email"
+                  type="email"
+                  label="Your email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  fullWidth
+                  sx={fieldSx}
+                />
+              </Box>
 
-            <Box sx={{ mt: 3, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 2 }}>
+              <TextField
+                name="subject"
+                label="Subject"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                fullWidth
+                sx={fieldSx}
+              />
+
+              <TextField
+                name="message"
+                label="Message"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                multiline
+                rows={5}
+                required
+                fullWidth
+                sx={fieldSx}
+              />
+
               <Button
                 type="submit"
-                disabled={status === "sending"}
                 endIcon={<SendRounded />}
                 sx={{
-                  px: 3,
                   py: 1.3,
                   borderRadius: "12px",
                   color: "#fff",
@@ -295,37 +277,14 @@ export default function Contact({ isDark = true, data = contactData }) {
                   background: colors.accentSolid,
                   boxShadow: "none",
                   "&:hover": { background: colors.accentSolidHover, boxShadow: "none" },
-                  "&.Mui-disabled": { color: "rgba(255,255,255,0.7)", background: colors.accentSolid, opacity: 0.6 },
                   ...focusRing,
                 }}
               >
                 {data.submitLabel}
               </Button>
-
-              {/* Announced to screen readers when the status changes */}
-              <Box role="status" aria-live="polite" sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-                {status === "success" && <CheckCircleOutlineRounded sx={{ fontSize: 20, color: colors.success }} />}
-                {status === "error" && <ErrorOutlineRounded sx={{ fontSize: 20, color: "#ef4444" }} />}
-                {statusText && (
-                  <Typography
-                    sx={{
-                      fontSize: 14,
-                      color:
-                        status === "success"
-                          ? colors.success
-                          : status === "error"
-                          ? "#ef4444"
-                          : colors.muted,
-                    }}
-                  >
-                    {statusText}
-                  </Typography>
-                )}
-              </Box>
             </Box>
           </Box>
         </Box>
-
       </Container>
     </Box>
   );

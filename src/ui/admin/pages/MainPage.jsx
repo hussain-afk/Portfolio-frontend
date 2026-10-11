@@ -4,20 +4,24 @@ import {
   DashboardCustomizeOutlined,
   FolderSpecialOutlined,
   WorkspacePremiumOutlined,
+  MailOutlineRounded,
 } from "@mui/icons-material";
 import { getColors } from "../../getColors";
 import AddProject from "../components/AddProject";
 import AddCertificate from "../components/AddCertificate";
+import AllMessages from "../components/AllMessages";
 
-// The two tabs of the page. Add a new item here to add a new tab.
+// The tabs of the page. Add a new item here to add a new tab.
+// The first tab is NOT automatically the default: see useState below.
 const TABS = [
+  { id: "messages", label: "Messages", icon: MailOutlineRounded },
   { id: "project", label: "Add project", icon: FolderSpecialOutlined },
   { id: "certificate", label: "Add certificate", icon: WorkspacePremiumOutlined },
 ];
 
 export default function AddContent({ isDark = true }) {
   const colors = getColors(isDark);
-  const [tab, setTab] = useState("project");
+  const [tab, setTab] = useState("messages"); // tab shown first
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: colors.bg, py: { xs: 3, md: 6 } }}>
@@ -63,7 +67,7 @@ export default function AddContent({ isDark = true }) {
                 Content manager
               </Typography>
               <Typography sx={{ mt: 0.5, color: colors.muted, fontSize: 14.5 }}>
-                Add new projects and certificates to your portfolio.
+                Read messages and add projects and certificates to your portfolio.
               </Typography>
             </Box>
           </Box>
@@ -71,9 +75,11 @@ export default function AddContent({ isDark = true }) {
           {/* Tab switcher */}
           <Box
             role="tablist"
-            aria-label="Choose what to add"
+            aria-label="Choose a section"
             sx={{
               display: "inline-flex",
+              maxWidth: "100%",
+              overflowX: "auto",
               p: 0.5,
               borderRadius: "14px",
               background: colors.card,
@@ -95,6 +101,7 @@ export default function AddContent({ isDark = true }) {
                   sx={{
                     display: "flex",
                     alignItems: "center",
+                    flexShrink: 0,
                     gap: 1,
                     px: { xs: 1.5, sm: 2.25 },
                     py: 1,
@@ -104,6 +111,7 @@ export default function AddContent({ isDark = true }) {
                     fontFamily: "inherit",
                     fontSize: 14,
                     fontWeight: 600,
+                    whiteSpace: "nowrap",
                     color: active ? "#fff" : colors.muted,
                     background: active ? colors.accentSolid : "transparent",
                     transition: "background 200ms ease, color 200ms ease",
@@ -120,8 +128,17 @@ export default function AddContent({ isDark = true }) {
         </Box>
 
         {/* ================= Panels =================
-            Both forms stay on the page (one is only hidden),
-            so what you typed is not lost when you switch tabs. */}
+            All panels stay on the page (only hidden), so what you typed
+            in a form is not lost when you switch tabs. */}
+        <Box
+          role="tabpanel"
+          id="panel-messages"
+          aria-labelledby="tab-messages"
+          sx={{ display: tab === "messages" ? "block" : "none" }}
+        >
+          <AllMessages isDark={isDark} />
+        </Box>
+
         <Box
           role="tabpanel"
           id="panel-project"

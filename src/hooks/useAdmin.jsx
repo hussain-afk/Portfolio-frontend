@@ -1,4 +1,4 @@
-import { login, addProject, addCertificate } from '../api/admin.api.js'
+import { login, addProject, addCertificate, sendMessage } from '../api/admin.api.js'
 import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Context } from '../context/Context.jsx'
@@ -34,6 +34,14 @@ const useAdmin = () => {
             throw new Error(error.response?.data?.message || 'Failed to add certificate');
         }
     }
-    return { handleAdminLogin, handleAddProject, handleAddCertificate }
+    const handleSendMessage = async (messageData) => {
+        try {
+            const response = await sendMessage(messageData);
+            return response;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Failed to send message');
+        }
+    }
+    return { handleAdminLogin, handleAddProject, handleAddCertificate, handleSendMessage }
 }
 export default useAdmin

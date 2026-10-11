@@ -43,6 +43,24 @@ export const addCertificate = async (certificateData) => {
     }
 }
 
+export const sendMessage = async (messageData) => {
+    try {
+        const response = await api.post('/message', messageData);
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Failed to send message');
+    }
+}
+
+export const getMessages = async () => {
+    try {
+        const response = await api.get('/all-messages');
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch messages');
+    }
+}
+
 export const getProjects = async () => {
     try {
         const response = await api.get('/projects');
