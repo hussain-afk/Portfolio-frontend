@@ -23,11 +23,11 @@ import { Context } from "../../../context/Context.jsx";
 
 // ======================================================================
 // EDIT ONLY THIS OBJECT to customize the Certifications section.
-// - The certificates themselves now come from the context (key: `certificates`).
+// - The certificates themselves come from the context (key: `certificates`).
 //   The list inside `certifications` below is only a SAMPLE, used when the
 //   context has no `certificates` key at all (for example while you are testing).
 // - `image` is the picture of your certificate. It fills the whole card,
-//   with a dark transparent layer on top that holds the text.
+//   with a dark layer on top that holds the text.
 //   (leave "" to show a plain dark card instead).
 // - `logo` (small issuer logo), `credentialId`, `credentialUrl`, `expires`
 //   and `skills` are optional. Leave them as "" (or []) to hide them.
@@ -168,8 +168,47 @@ const normalizeCert = (cert = {}) => ({
   skills: toSkillsArray(cert.skills),
 });
 
-// One certificate card: image background + dark transparent layer + text
-function CertCard({ cert, data, colors, onPreview }) {
+/* ------------------------------------------------------------------ */
+/* Card styles (shared look, easy to tweak)                             */
+/* ------------------------------------------------------------------ */
+
+// Frosted-glass pill (top badge)
+const glassSx = {
+  background: "rgba(15, 23, 42, 0.55)",
+  border: "1px solid rgba(255,255,255,0.18)",
+  backdropFilter: "blur(10px)",
+  WebkitBackdropFilter: "blur(10px)",
+};
+
+// Small chip with the skill name
+const chipSx = {
+  height: 24,
+  color: "rgba(255,255,255,0.92)",
+  background: "rgba(255,255,255,0.12)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  fontSize: 11.5,
+  fontWeight: 500,
+  borderRadius: "8px",
+};
+
+// Card buttons: the main one is solid white, the other one is an outline
+const buttonSx = (primary) => ({
+  px: 1.75,
+  py: 0.7,
+  minWidth: 0,
+  borderRadius: "10px",
+  fontSize: 13,
+  fontWeight: 600,
+  textTransform: "none",
+  color: primary ? "#0f172a" : "#fff",
+  background: primary ? "#fff" : "rgba(255,255,255,0.06)",
+  border: `1px solid ${primary ? "#fff" : "rgba(255,255,255,0.3)"}`,
+  "&:hover": { background: primary ? "rgba(255,255,255,0.88)" : "rgba(255,255,255,0.16)" },
+  "&:focus-visible": { outline: "2px solid #fff", outlineOffset: 2 },
+});
+
+// One certificate card: image background + dark layer + clean text
+function CertCard({ cert, data, onPreview }) {
   const [imageFailed, setImageFailed] = useState(false);
   const [logoFailed, setLogoFailed] = useState(false);
   const hasImage = Boolean(cert.image) && !imageFailed;
@@ -177,21 +216,6 @@ function CertCard({ cert, data, colors, onPreview }) {
   const skills = cert.skills || [];
   const shownSkills = skills.slice(0, data.maxSkillChips);
   const hiddenCount = skills.length - shownSkills.length;
-
-  const overlayButtonSx = {
-    px: 1.5,
-    py: 0.65,
-    minWidth: 0,
-    borderRadius: "10px",
-    fontSize: 13,
-    fontWeight: 600,
-    textTransform: "none",
-    color: "#fff",
-    border: "1px solid rgba(255,255,255,0.35)",
-    background: "rgba(255,255,255,0.08)",
-    "&:hover": { background: "rgba(255,255,255,0.2)" },
-    "&:focus-visible": { outline: "2px solid #fff", outlineOffset: 2 },
-  };
 
   return (
     <Box
@@ -202,14 +226,18 @@ function CertCard({ cert, data, colors, onPreview }) {
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
-        aspectRatio: { xs: "5 / 4", sm: "4 / 3" },
-        borderRadius: "18px",
-        background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
-        border: `1px solid ${colors.border}`,
-        // Hover: image zooms slightly and the dark layer softens
-        "&:hover .cert-image": { transform: "scale(1.04)" },
-        "&:hover .cert-overlay, &:focus-within .cert-overlay": { opacity: 0.88 },
+        minHeight: { xs: 340, sm: 380 },
+        borderRadius: "20px",
+        // used when there is no image: dark gradient with a soft blue glow
+        background:
+          "radial-gradient(circle at 85% 0%, rgba(56,189,248,0.22) 0%, transparent 55%), linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
+        transition: "transform 300ms ease, box-shadow 300ms ease",
+        // Hover: card lifts a little and the image zooms slowly
+        "&:hover": { transform: "translateY(-4px)", boxShadow: "0 22px 44px rgba(0,0,0,0.35)" },
+        "&:hover .cert-image": { transform: "scale(1.05)" },
         "@media (prefers-reduced-motion: reduce)": {
+          transition: "none",
+          "&:hover": { transform: "none" },
           "&:hover .cert-image": { transform: "none" },
         },
       }}
@@ -231,7 +259,7 @@ function CertCard({ cert, data, colors, onPreview }) {
             width: "100%",
             height: "100%",
             objectFit: "cover",
-            transition: "transform 400ms ease",
+            transition: "transform 600ms ease",
           }}
         />
       ) : (
@@ -239,84 +267,93 @@ function CertCard({ cert, data, colors, onPreview }) {
           aria-hidden
           sx={{
             position: "absolute",
-            top: -18,
-            right: -18,
+            top: "18%",
+            right: "-4%",
             zIndex: -2,
-            fontSize: 190,
-            color: "rgba(255,255,255,0.07)",
+            fontSize: 200,
+            color: "rgba(255,255,255,0.06)",
           }}
         />
       )}
 
-      {/* Layer 2: transparent black layer that the text sits on */}
+      {/* Layer 2: dark layer. Light at the top so the image shows, strong at the bottom for the text */}
       <Box
-        className="cert-overlay"
         aria-hidden
         sx={{
           position: "absolute",
           inset: 0,
           zIndex: -1,
           background:
-            "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.66) 55%, rgba(0,0,0,0.5) 100%)",
-          transition: "opacity 250ms ease",
+            "linear-gradient(to top, rgba(2,6,23,0.96) 0%, rgba(2,6,23,0.78) 40%, rgba(2,6,23,0.2) 72%, rgba(2,6,23,0.45) 100%)",
         }}
       />
 
-      {/* Layer 3: text and actions */}
+      {/* Layer 3: content */}
       <Box
         sx={{
           flex: 1,
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          gap: 2,
+          gap: 2.5,
           p: { xs: 2, sm: 2.5 },
           color: "#fff",
         }}
       >
-        {/* Top: issuer + date */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
-          {cert.logo && (
-            <Box
-              aria-hidden
-              sx={{
-                display: "grid",
-                placeItems: "center",
-                width: 42,
-                height: 42,
-                flexShrink: 0,
-                overflow: "hidden",
-                borderRadius: "10px",
-                // no white background: the image itself fills the whole box
-                background: logoFailed ? "rgba(255,255,255,0.16)" : "transparent",
-                border: "1px solid rgba(255,255,255,0.25)",
-              }}
-            >
-              {logoFailed ? (
-                // The logo link is broken: show the first letter of the issuer instead
-                <Typography sx={{ fontSize: 18, fontWeight: 800, color: "#fff" }}>
-                  {(cert.issuer || cert.title).charAt(0).toUpperCase()}
-                </Typography>
-              ) : (
-                <Box
-                  component="img"
-                  src={cert.logo}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  onError={() => setLogoFailed(true)}
-                  sx={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              )}
+        {/* Top: issuer badge */}
+        <Box>
+          <Box
+            sx={{
+              ...glassSx,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 1.25,
+              maxWidth: "100%",
+              p: 0.75,
+              pr: 1.75,
+              borderRadius: "14px",
+            }}
+          >
+            {cert.logo && (
+              <Box
+                aria-hidden
+                sx={{
+                  display: "grid",
+                  placeItems: "center",
+                  width: 36,
+                  height: 36,
+                  flexShrink: 0,
+                  overflow: "hidden",
+                  borderRadius: "10px",
+                  background: logoFailed ? "rgba(255,255,255,0.16)" : "transparent",
+                }}
+              >
+                {logoFailed ? (
+                  // The logo link is broken: show the first letter of the issuer instead
+                  <Typography sx={{ fontSize: 16, fontWeight: 800, color: "#fff" }}>
+                    {(cert.issuer || cert.title).charAt(0).toUpperCase()}
+                  </Typography>
+                ) : (
+                  <Box
+                    component="img"
+                    src={cert.logo}
+                    alt=""
+                    referrerPolicy="no-referrer"
+                    onError={() => setLogoFailed(true)}
+                    sx={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                )}
+              </Box>
+            )}
+            <Box sx={{ minWidth: 0, pl: cert.logo ? 0 : 1 }}>
+              <Typography noWrap sx={{ fontSize: 13.5, fontWeight: 600, lineHeight: 1.3 }}>
+                {cert.issuer}
+              </Typography>
+              <Typography noWrap sx={{ fontSize: 12, color: "rgba(255,255,255,0.72)" }}>
+                {cert.date}
+                {cert.expires ? ` · Expires ${cert.expires}` : ""}
+              </Typography>
             </Box>
-          )}
-          <Box sx={{ minWidth: 0 }}>
-            <Typography sx={{ fontSize: 14, fontWeight: 600, lineHeight: 1.3 }}>
-              {cert.issuer}
-            </Typography>
-            <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.78)" }}>
-              {cert.date}
-              {cert.expires ? ` · Expires ${cert.expires}` : ""}
-            </Typography>
           </Box>
         </Box>
 
@@ -326,10 +363,10 @@ function CertCard({ cert, data, colors, onPreview }) {
             component="h3"
             title={cert.title}
             sx={{
-              fontSize: { xs: 17, sm: 18 },
+              fontSize: { xs: 18, sm: 20 },
               fontWeight: 700,
               lineHeight: 1.3,
-              letterSpacing: "-0.2px",
+              letterSpacing: "-0.3px",
               display: "-webkit-box",
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
@@ -340,53 +377,35 @@ function CertCard({ cert, data, colors, onPreview }) {
           </Typography>
 
           {cert.credentialId && (
-            <Typography sx={{ mt: 0.5, fontSize: 12.5, color: "rgba(255,255,255,0.78)" }}>
-              Credential ID: {cert.credentialId}
+            <Typography
+              sx={{
+                mt: 0.75,
+                fontSize: 12,
+                color: "rgba(255,255,255,0.7)",
+                fontFamily: "ui-monospace, 'SFMono-Regular', Menlo, monospace",
+              }}
+            >
+              ID: {cert.credentialId}
             </Typography>
           )}
 
           {shownSkills.length > 0 && (
-            <Box sx={{ mt: 1.25, display: "flex", flexWrap: "wrap", gap: 0.6 }}>
+            <Box sx={{ mt: 1.5, display: "flex", flexWrap: "wrap", gap: 0.6 }}>
               {shownSkills.map((skill) => (
-                <Chip
-                  key={skill}
-                  label={skill}
-                  size="small"
-                  sx={{
-                    height: 22,
-                    color: "#fff",
-                    background: "rgba(255,255,255,0.16)",
-                    fontSize: 11.5,
-                    fontWeight: 500,
-                    borderRadius: "7px",
-                  }}
-                />
+                <Chip key={skill} label={skill} size="small" sx={chipSx} />
               ))}
-              {hiddenCount > 0 && (
-                <Chip
-                  label={`+${hiddenCount}`}
-                  size="small"
-                  sx={{
-                    height: 22,
-                    color: "#fff",
-                    background: "rgba(255,255,255,0.16)",
-                    fontSize: 11.5,
-                    fontWeight: 500,
-                    borderRadius: "7px",
-                  }}
-                />
-              )}
+              {hiddenCount > 0 && <Chip label={`+${hiddenCount}`} size="small" sx={chipSx} />}
             </Box>
           )}
 
           {(hasImage || cert.credentialUrl) && (
-            <Box sx={{ mt: 1.75, display: "flex", flexWrap: "wrap", gap: 1 }}>
+            <Box sx={{ mt: 2, display: "flex", flexWrap: "wrap", gap: 1 }}>
               {hasImage && (
                 <Button
                   onClick={() => onPreview(cert)}
                   startIcon={<VisibilityOutlined sx={{ fontSize: 17 }} />}
                   aria-label={`${data.viewLabel}: ${cert.title}`}
-                  sx={overlayButtonSx}
+                  sx={buttonSx(true)}
                 >
                   {data.viewLabel}
                 </Button>
@@ -399,7 +418,7 @@ function CertCard({ cert, data, colors, onPreview }) {
                   rel="noopener noreferrer"
                   endIcon={<OpenInNewRounded sx={{ fontSize: 15 }} />}
                   aria-label={`${data.verifyLabel} credential for ${cert.title}`}
-                  sx={overlayButtonSx}
+                  sx={buttonSx(!hasImage)}
                 >
                   {data.verifyLabel}
                 </Button>
@@ -484,7 +503,6 @@ export default function Certifications({ isDark = true, data = certificationsDat
               key={cert._id || cert.id || `${cert.issuer}-${cert.title}-${index}`}
               cert={cert}
               data={data}
-              colors={colors}
               onPreview={setPreview}
             />
           ))}

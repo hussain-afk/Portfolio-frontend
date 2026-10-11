@@ -2,16 +2,12 @@ import React, { useMemo, useState, useContext } from "react";
 
 import { Box, Container, Typography, Button, Chip } from "@mui/material";
 
-import {
-  GitHub,
-  OpenInNewRounded,
-  CodeRounded,
-} from "@mui/icons-material";
+import { GitHub, OpenInNewRounded, CodeRounded } from "@mui/icons-material";
 
 import { getColors } from "../../getColors";
 import { Context } from "../../../context/Context.jsx";
 
-// Original section settings
+// Section settings
 const projectsData = {
   title: "Projects",
   subtitle: "A selection of things I've designed and built.",
@@ -22,44 +18,66 @@ const projectsData = {
   projects: [],
 };
 
-// Normalize backend data without changing the card UI
+// Normalize backend data so the card always gets the fields it needs
 function normalizeProject(project) {
-  const rawTech =
-    project.tech ??
-    project.technologies ??
-    project.skills ??
-    [];
+  const rawTech = project.tech ?? project.technologies ?? project.skills ?? [];
 
   return {
     ...project,
     title: project.title || project.name || "Untitled Project",
     category: project.category || "Other",
     description: project.description || "",
-    image:
-      project.image ||
-      project.imageUrl ||
-      project.thumbnail ||
-      project.coverImage ||
-      "",
+    image: project.image || project.imageUrl || project.thumbnail || project.coverImage || "",
     tech: Array.isArray(rawTech)
       ? rawTech
       : typeof rawTech === "string"
       ? rawTech.split(",").map((item) => item.trim()).filter(Boolean)
       : [],
-    liveUrl:
-      project.liveUrl ||
-      project.demoUrl ||
-      project.live ||
-      "",
-    githubUrl:
-      project.githubUrl ||
-      project.github ||
-      project.repositoryUrl ||
-      "",
+    liveUrl: project.liveUrl || project.demoUrl || project.live || "",
+    githubUrl: project.githubUrl || project.github || project.repositoryUrl || "",
   };
 }
 
-// Original ProjectCard UI — preserved
+/* ------------------------------------------------------------------ */
+/* Card styles (shared look, easy to tweak)                             */
+/* ------------------------------------------------------------------ */
+
+// Frosted-glass pill (category badge)
+const glassSx = {
+  background: "rgba(15, 23, 42, 0.55)",
+  border: "1px solid rgba(255,255,255,0.18)",
+  backdropFilter: "blur(10px)",
+  WebkitBackdropFilter: "blur(10px)",
+};
+
+// Small chip with the technology name
+const chipSx = {
+  height: 24,
+  color: "rgba(255,255,255,0.92)",
+  background: "rgba(255,255,255,0.12)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  fontSize: 11.5,
+  fontWeight: 500,
+  borderRadius: "8px",
+};
+
+// Card buttons: the main one is solid white, the other one is an outline
+const buttonSx = (primary) => ({
+  px: 1.75,
+  py: 0.7,
+  minWidth: 0,
+  borderRadius: "10px",
+  fontSize: 13,
+  fontWeight: 600,
+  textTransform: "none",
+  color: primary ? "#0f172a" : "#fff",
+  background: primary ? "#fff" : "rgba(255,255,255,0.06)",
+  border: `1px solid ${primary ? "#fff" : "rgba(255,255,255,0.3)"}`,
+  "&:hover": { background: primary ? "rgba(255,255,255,0.88)" : "rgba(255,255,255,0.16)" },
+  "&:focus-visible": { outline: "2px solid #fff", outlineOffset: 2 },
+});
+
+// One project card: image background + dark layer + clean text
 function ProjectCard({ project, data, colors }) {
   const [imageFailed, setImageFailed] = useState(false);
 
@@ -68,35 +86,6 @@ function ProjectCard({ project, data, colors }) {
   const tech = project.tech || [];
   const shownTech = tech.slice(0, data.maxTechChips);
   const hiddenCount = tech.length - shownTech.length;
-
-  const chipSx = {
-    height: 22,
-    color: "#fff",
-    background: "rgba(255,255,255,0.16)",
-    fontSize: 11.5,
-    fontWeight: 500,
-    borderRadius: "7px",
-  };
-
-  const overlayButtonSx = {
-    px: 1.5,
-    py: 0.65,
-    minWidth: 0,
-    borderRadius: "10px",
-    fontSize: 13,
-    fontWeight: 600,
-    textTransform: "none",
-    color: "#fff",
-    border: "1px solid rgba(255,255,255,0.35)",
-    background: "rgba(255,255,255,0.08)",
-    "&:hover": {
-      background: "rgba(255,255,255,0.2)",
-    },
-    "&:focus-visible": {
-      outline: "2px solid #fff",
-      outlineOffset: 2,
-    },
-  };
 
   return (
     <Box
@@ -107,28 +96,24 @@ function ProjectCard({ project, data, colors }) {
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
-        aspectRatio: { xs: "1 / 1", sm: "5 / 4" },
-        borderRadius: "18px",
+        minHeight: { xs: 360, sm: 390 },
+        borderRadius: "20px",
+        // used when there is no image: dark gradient with a soft blue glow
         background:
-          "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
+          "radial-gradient(circle at 85% 0%, rgba(56,189,248,0.22) 0%, transparent 55%), linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
         border: `1px solid ${colors.border}`,
-
-        "&:hover .project-image": {
-          transform: "scale(1.04)",
-        },
-
-        "&:hover .project-overlay, &:focus-within .project-overlay": {
-          opacity: 0.9,
-        },
-
+        transition: "transform 300ms ease, box-shadow 300ms ease",
+        // Hover: card lifts a little and the image zooms slowly
+        "&:hover": { transform: "translateY(-4px)", boxShadow: "0 22px 44px rgba(0,0,0,0.35)" },
+        "&:hover .project-image": { transform: "scale(1.05)" },
         "@media (prefers-reduced-motion: reduce)": {
-          "&:hover .project-image": {
-            transform: "none",
-          },
+          transition: "none",
+          "&:hover": { transform: "none" },
+          "&:hover .project-image": { transform: "none" },
         },
       }}
     >
-      {/* Layer 1: Project image */}
+      {/* Layer 1: project image (or a faint icon when there is no image) */}
       {hasImage ? (
         <Box
           className="project-image"
@@ -136,6 +121,7 @@ function ProjectCard({ project, data, colors }) {
           src={project.image}
           alt=""
           loading="lazy"
+          referrerPolicy="no-referrer"
           onError={() => setImageFailed(true)}
           sx={{
             position: "absolute",
@@ -144,7 +130,7 @@ function ProjectCard({ project, data, colors }) {
             width: "100%",
             height: "100%",
             objectFit: "cover",
-            transition: "transform 400ms ease",
+            transition: "transform 600ms ease",
           }}
         />
       ) : (
@@ -152,61 +138,59 @@ function ProjectCard({ project, data, colors }) {
           aria-hidden
           sx={{
             position: "absolute",
-            top: -16,
-            right: -16,
+            top: "14%",
+            right: "-4%",
             zIndex: -2,
-            fontSize: 190,
-            color: "rgba(255,255,255,0.07)",
+            fontSize: 200,
+            color: "rgba(255,255,255,0.06)",
           }}
         />
       )}
 
-      {/* Layer 2: Original dark overlay */}
+      {/* Layer 2: dark layer. Light at the top so the image shows, strong at the bottom for the text */}
       <Box
-        className="project-overlay"
         aria-hidden
         sx={{
           position: "absolute",
           inset: 0,
           zIndex: -1,
           background:
-            "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.72) 55%, rgba(0,0,0,0.52) 100%)",
-          transition: "opacity 250ms ease",
+            "linear-gradient(to top, rgba(2,6,23,0.96) 0%, rgba(2,6,23,0.8) 42%, rgba(2,6,23,0.2) 75%, rgba(2,6,23,0.4) 100%)",
         }}
       />
 
-      {/* Layer 3: Original card content */}
+      {/* Layer 3: content */}
       <Box
         sx={{
           flex: 1,
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          gap: 2,
+          gap: 2.5,
           p: { xs: 2, sm: 2.5 },
           color: "#fff",
         }}
       >
-        {/* Category */}
+        {/* Top: category badge */}
         <Box>
           <Box
             component="span"
             sx={{
+              ...glassSx,
               display: "inline-block",
-              px: 1.25,
-              py: 0.4,
+              px: 1.5,
+              py: 0.5,
               borderRadius: "999px",
-              border: "1px solid rgba(255,255,255,0.3)",
-              background: "rgba(255,255,255,0.1)",
               fontSize: 12.5,
               fontWeight: 600,
+              letterSpacing: "0.2px",
             }}
           >
             {project.category}
           </Box>
         </Box>
 
-        {/* Title, description, technologies and buttons */}
+        {/* Bottom: title, description, technologies, buttons */}
         <Box>
           <Typography
             component="h3"
@@ -220,59 +204,36 @@ function ProjectCard({ project, data, colors }) {
             {project.title}
           </Typography>
 
-          <Typography
-            title={project.description}
-            sx={{
-              mt: 0.75,
-              fontSize: 14,
-              lineHeight: 1.6,
-              color: "rgba(255,255,255,0.85)",
-              display: "-webkit-box",
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
-          >
-            {project.description}
-          </Typography>
-
-          {shownTech.length > 0 && (
-            <Box
+          {project.description && (
+            <Typography
+              title={project.description}
               sx={{
-                mt: 1.5,
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 0.6,
+                mt: 0.75,
+                fontSize: 14,
+                lineHeight: 1.6,
+                color: "rgba(255,255,255,0.82)",
+                display: "-webkit-box",
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
               }}
             >
+              {project.description}
+            </Typography>
+          )}
+
+          {shownTech.length > 0 && (
+            <Box sx={{ mt: 1.5, display: "flex", flexWrap: "wrap", gap: 0.6 }}>
               {shownTech.map((technology, index) => (
-                <Chip
-                  key={`${technology}-${index}`}
-                  label={technology}
-                  size="small"
-                  sx={chipSx}
-                />
+                <Chip key={`${technology}-${index}`} label={technology} size="small" sx={chipSx} />
               ))}
 
-              {hiddenCount > 0 && (
-                <Chip
-                  label={`+${hiddenCount}`}
-                  size="small"
-                  sx={chipSx}
-                />
-              )}
+              {hiddenCount > 0 && <Chip label={`+${hiddenCount}`} size="small" sx={chipSx} />}
             </Box>
           )}
 
           {(project.liveUrl || project.githubUrl) && (
-            <Box
-              sx={{
-                mt: 1.75,
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 1,
-              }}
-            >
+            <Box sx={{ mt: 2, display: "flex", flexWrap: "wrap", gap: 1 }}>
               {project.liveUrl && (
                 <Button
                   component="a"
@@ -281,7 +242,7 @@ function ProjectCard({ project, data, colors }) {
                   rel="noopener noreferrer"
                   endIcon={<OpenInNewRounded sx={{ fontSize: 15 }} />}
                   aria-label={`${project.title}: ${data.liveLabel}`}
-                  sx={overlayButtonSx}
+                  sx={buttonSx(true)}
                 >
                   {data.liveLabel}
                 </Button>
@@ -295,7 +256,7 @@ function ProjectCard({ project, data, colors }) {
                   rel="noopener noreferrer"
                   startIcon={<GitHub sx={{ fontSize: 17 }} />}
                   aria-label={`${project.title}: ${data.sourceLabel}`}
-                  sx={overlayButtonSx}
+                  sx={buttonSx(!project.liveUrl)}
                 >
                   {data.sourceLabel}
                 </Button>
@@ -332,29 +293,25 @@ export default function Projects({ isDark = true, data = projectsData }) {
     [backendProjects, data]
   );
 
-  const [activeCategory, setActiveCategory] = useState(
-    sectionData.allLabel
-  );
+  const [activeCategory, setActiveCategory] = useState(sectionData.allLabel);
 
-  // If categories change, keep the selected filter valid
   const categories = useMemo(
     () => [
       sectionData.allLabel,
-      ...new Set(
-        sectionData.projects
-          .map((project) => project.category)
-          .filter(Boolean)
-      ),
+      ...new Set(sectionData.projects.map((project) => project.category).filter(Boolean)),
     ],
     [sectionData.projects, sectionData.allLabel]
   );
 
+  // If the selected category no longer exists (for example a project was deleted), go back to "All"
+  const selectedCategory = categories.includes(activeCategory)
+    ? activeCategory
+    : sectionData.allLabel;
+
   const visibleProjects =
-    activeCategory === sectionData.allLabel
+    selectedCategory === sectionData.allLabel
       ? sectionData.projects
-      : sectionData.projects.filter(
-          (project) => project.category === activeCategory
-        );
+      : sectionData.projects.filter((project) => project.category === selectedCategory);
 
   const focusRing = {
     "&:focus-visible": {
@@ -373,7 +330,7 @@ export default function Projects({ isDark = true, data = projectsData }) {
       }}
     >
       <Container maxWidth="lg" sx={{ px: { xs: 2.5, sm: 3 } }}>
-        {/* Original heading */}
+        {/* Heading */}
         <Typography
           component="h2"
           sx={{
@@ -397,7 +354,7 @@ export default function Projects({ isDark = true, data = projectsData }) {
           {sectionData.subtitle}
         </Typography>
 
-        {/* Original category filters */}
+        {/* Category filters */}
         <Box
           role="group"
           aria-label="Filter projects by category"
@@ -409,7 +366,7 @@ export default function Projects({ isDark = true, data = projectsData }) {
           }}
         >
           {categories.map((category) => {
-            const selected = category === activeCategory;
+            const selected = category === selectedCategory;
 
             return (
               <Button
@@ -425,16 +382,10 @@ export default function Projects({ isDark = true, data = projectsData }) {
                   fontWeight: 600,
                   textTransform: "none",
                   color: selected ? "#fff" : colors.muted,
-                  background: selected
-                    ? colors.accentSolid
-                    : "transparent",
-                  border: `1px solid ${
-                    selected ? colors.accentSolid : colors.border
-                  }`,
+                  background: selected ? colors.accentSolid : "transparent",
+                  border: `1px solid ${selected ? colors.accentSolid : colors.border}`,
                   "&:hover": {
-                    background: selected
-                      ? colors.accentSolidHover
-                      : colors.hover,
+                    background: selected ? colors.accentSolidHover : colors.hover,
                     color: selected ? "#fff" : colors.text,
                   },
                   ...focusRing,
@@ -446,7 +397,7 @@ export default function Projects({ isDark = true, data = projectsData }) {
           })}
         </Box>
 
-        {/* Original card grid */}
+        {/* Card grid */}
         <Box
           sx={{
             mt: 4,

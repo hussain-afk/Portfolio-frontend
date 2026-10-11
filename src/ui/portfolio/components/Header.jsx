@@ -213,7 +213,7 @@ export default function Header({ isDark = true, onThemeToggle }) {
                         lineHeight: 1.2,
                       }}
                     >
-                      Frontend developer
+                      FullStack developer
                     </Typography>
                   </Box>
                 </Box>

@@ -30,3 +30,13 @@ body {
   padding: 0;
   text-align: left;
 }
+
+/* Poore project ka scrollbar chhupa do (scroll phir bhi chalta rahega) */
+* {
+  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;   /* purana Edge / IE */
+}
+
+*::-webkit-scrollbar {
+  display: none;              /* Chrome, Edge, Safari */
+}
