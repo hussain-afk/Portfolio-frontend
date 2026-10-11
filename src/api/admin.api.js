@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:4000/admin';
+const API_URL = ' https://portfolio-backend-2-1i51.onrender.com/admin';
 import axios from 'axios';
 const api = axios.create({
   baseURL: API_URL,
