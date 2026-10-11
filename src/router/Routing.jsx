@@ -4,8 +4,6 @@ import AdminLoginPage from '../ui/admin/LoginPage'
 import AdminMainPage from '../ui/admin/pages/MainPage'
 import { useContext } from 'react'
 import { Context } from '../context/Context.jsx'
-import dotenv from 'dotenv'
-dotenv.config()
 
 const Routing = () => {
     const AdminProtectedRoute = ({ children }) => {
@@ -14,7 +12,7 @@ const Routing = () => {
         if (!user) {
             return <Navigate to="/admin/login" replace />;
         }
-        if (user.email !== process.env.ADMIN_EMAIL) {
+        if (user.email !== import.meta.env.ADMIN_EMAIL) {
             return <Navigate to="/admin/login" replace />;
         }
 
