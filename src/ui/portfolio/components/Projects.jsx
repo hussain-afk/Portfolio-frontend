@@ -6,6 +6,7 @@ import { GitHub, OpenInNewRounded, CodeRounded } from "@mui/icons-material";
 
 import { getColors } from "../../getColors";
 import { Context } from "../../../context/Context.jsx";
+import Carousel from "./Carousel";
 
 // Section settings
 const projectsData = {
@@ -397,27 +398,18 @@ export default function Projects({ isDark = true, data = projectsData }) {
           })}
         </Box>
 
-        {/* Card grid */}
-        <Box
-          sx={{
-            mt: 4,
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              md: "repeat(2, 1fr)",
-              lg: "repeat(3, 1fr)",
-            },
-            gap: 3,
-          }}
-        >
-          {visibleProjects.map((project, index) => (
-            <ProjectCard
-              key={project._id || project.id || `${project.title}-${index}`}
-              project={project}
-              data={sectionData}
-              colors={colors}
-            />
-          ))}
+        {/* Cards in a carousel (it starts again from the first card when the filter changes) */}
+        <Box sx={{ mt: 3 }}>
+          <Carousel key={selectedCategory} colors={colors} label="Projects">
+            {visibleProjects.map((project, index) => (
+              <ProjectCard
+                key={project._id || project.id || `${project.title}-${index}`}
+                project={project}
+                data={sectionData}
+                colors={colors}
+              />
+            ))}
+          </Carousel>
         </Box>
       </Container>
     </Box>

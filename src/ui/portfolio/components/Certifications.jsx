@@ -13,13 +13,12 @@ import {
 import {
   WorkspacePremiumOutlined,
   OpenInNewRounded,
-  ExpandMoreRounded,
-  ExpandLessRounded,
   VisibilityOutlined,
   CloseRounded,
 } from "@mui/icons-material";
 import { getColors } from "../../getColors";
 import { Context } from "../../../context/Context.jsx";
+import Carousel from "./Carousel";
 
 // ======================================================================
 // EDIT ONLY THIS OBJECT to customize the Certifications section.
@@ -31,17 +30,12 @@ import { Context } from "../../../context/Context.jsx";
 //   (leave "" to show a plain dark card instead).
 // - `logo` (small issuer logo), `credentialId`, `credentialUrl`, `expires`
 //   and `skills` are optional. Leave them as "" (or []) to hide them.
-// - `initialVisible` is how many cards show before "Show all" appears.
-//   If you have fewer certificates than this, the button is hidden.
 // - `maxSkillChips` limits how many skill chips each card shows.
 // ======================================================================
 const certificationsData = {
   title: "Certifications",
   subtitle: "Courses and credentials I've completed to keep my skills sharp.",
-  initialVisible: 6,
   maxSkillChips: 3,
-  showAllLabel: "Show all certifications",
-  showLessLabel: "Show fewer",
   viewLabel: "View certificate",
   verifyLabel: "Verify",
 
@@ -437,7 +431,6 @@ export default function Certifications({ isDark = true, data = certificationsDat
   // Get the certificates from the context (key: `certificates`)
   const { certificates } = useContext(Context) || {};
 
-  const [showAll, setShowAll] = useState(false);
   const [preview, setPreview] = useState(null);
 
   // The context can hold the list directly: certificates = [ {...}, {...} ]
@@ -452,14 +445,6 @@ export default function Certifications({ isDark = true, data = certificationsDat
 
   // Nothing to show (the context list is empty): hide the whole section
   if (certifications.length === 0) return null;
-
-  const canCollapse = certifications.length > data.initialVisible;
-  const visible =
-    showAll || !canCollapse ? certifications : certifications.slice(0, data.initialVisible);
-
-  const focusRing = {
-    "&:focus-visible": { outline: `2px solid ${colors.accent}`, outlineOffset: 2 },
-  };
 
   return (
     <Box
@@ -485,53 +470,19 @@ export default function Certifications({ isDark = true, data = certificationsDat
           {data.subtitle}
         </Typography>
 
-        {/* Cards */}
-        <Box
-          sx={{
-            mt: { xs: 5, md: 6 },
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              md: "repeat(2, 1fr)",
-              lg: "repeat(3, 1fr)",
-            },
-            gap: 3,
-          }}
-        >
-          {visible.map((cert, index) => (
-            <CertCard
-              key={cert._id || cert.id || `${cert.issuer}-${cert.title}-${index}`}
-              cert={cert}
-              data={data}
-              onPreview={setPreview}
-            />
-          ))}
+        {/* Cards in a carousel */}
+        <Box sx={{ mt: { xs: 4, md: 5 } }}>
+          <Carousel colors={colors} label="Certifications">
+            {certifications.map((cert, index) => (
+              <CertCard
+                key={cert._id || cert.id || `${cert.issuer}-${cert.title}-${index}`}
+                cert={cert}
+                data={data}
+                onPreview={setPreview}
+              />
+            ))}
+          </Carousel>
         </Box>
-
-        {/* Show all / fewer */}
-        {canCollapse && (
-          <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
-            <Button
-              onClick={() => setShowAll((prev) => !prev)}
-              aria-expanded={showAll}
-              endIcon={showAll ? <ExpandLessRounded /> : <ExpandMoreRounded />}
-              sx={{
-                px: 2.5,
-                py: 1,
-                borderRadius: "12px",
-                fontSize: 14,
-                fontWeight: 600,
-                textTransform: "none",
-                color: colors.text,
-                border: `1px solid ${colors.border}`,
-                "&:hover": { background: colors.hover },
-                ...focusRing,
-              }}
-            >
-              {showAll ? data.showLessLabel : data.showAllLabel}
-            </Button>
-          </Box>
-        )}
       </Container>
 
       {/* Full-size certificate viewer */}
