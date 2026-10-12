@@ -314,4 +314,3 @@ export default function About({ isDark = true, data = aboutData }) {
     </Box>
   );
 }
-import React from "react";

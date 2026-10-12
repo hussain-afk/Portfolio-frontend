@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Box, Typography, TextField, Chip, Button } from "@mui/material";
 import { FolderSpecialOutlined, OpenInNewRounded, GitHub, ImageOutlined } from "@mui/icons-material";
 import { getColors } from "../../getColors";

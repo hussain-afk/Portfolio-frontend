@@ -244,4 +244,3 @@ export default function Footer({ isDark = true, data = footerData }) {
     </Box>
   );
 }
-import React from "react";

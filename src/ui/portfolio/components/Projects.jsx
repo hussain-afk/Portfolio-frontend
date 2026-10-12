@@ -1,6 +1,6 @@
-import React, { useMemo, useState, useContext } from "react";
+import { useMemo, useState, useContext } from "react";
 
-import { Box, Container, Typography, Button, Chip } from "@mui/material";
+import { Box, Container, Typography, Button, Chip, CircularProgress } from "@mui/material";
 
 import { GitHub, OpenInNewRounded, CodeRounded } from "@mui/icons-material";
 
@@ -273,6 +273,8 @@ function ProjectCard({ project, data, colors }) {
 // Projects section connected to Context API
 export default function Projects({ isDark = true, data = projectsData }) {
   const contextValue = useContext(Context);
+  const { loading = false, errors = {}, refreshData } = contextValue || {};
+  const error = errors.projects;
 
   // Supports either { projects: [...] } or { projects: { projects: [...] } }
   const contextProjects = contextValue?.projects;
@@ -355,6 +357,26 @@ export default function Projects({ isDark = true, data = projectsData }) {
           {sectionData.subtitle}
         </Typography>
 
+        {/* Loading / error state */}
+        {loading && backendProjects.length === 0 ? (
+          <Box
+            role="status"
+            sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, py: 8 }}
+          >
+            <CircularProgress size={34} sx={{ color: colors.accent }} />
+            <Typography sx={{ color: colors.muted, fontSize: 14 }}>
+              Loading projects...
+            </Typography>
+          </Box>
+        ) : error && backendProjects.length === 0 ? (
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, py: 8, textAlign: "center" }}>
+            <Typography sx={{ color: colors.muted }}>{error}</Typography>
+            <Button onClick={refreshData} variant="outlined" sx={{ color: colors.text, borderColor: colors.border, textTransform: "none" }}>
+              Try again
+            </Button>
+          </Box>
+        ) : (
+          <>
         {/* Category filters */}
         <Box
           role="group"
@@ -411,6 +433,8 @@ export default function Projects({ isDark = true, data = projectsData }) {
             ))}
           </Carousel>
         </Box>
+          </>
+        )}
       </Container>
     </Box>
   );

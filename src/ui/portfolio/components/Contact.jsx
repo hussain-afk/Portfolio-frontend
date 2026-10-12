@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Box, Container, Typography, Button, IconButton, TextField } from "@mui/material";
+import { useState } from "react";
+import { Box, Container, Typography, Button, IconButton, TextField, CircularProgress } from "@mui/material";
 import {
   MailOutlineRounded,
   PhoneOutlined,
@@ -20,7 +20,7 @@ const contactData = {
   subtitle:
     "Have a project in mind or want to work together? Send me a message and I'll reply within a day or two.",
   methods: [
-    { label: "Email", value: "hussainkadir245@gmail.com", href: "mailto:hussainkadir245@gmail", icon: <MailOutlineRounded /> },
+    { label: "Email", value: "hussainkadir245@gmail.com", href: "mailto:hussainkadir245@gmail.com", icon: <MailOutlineRounded /> },
     { label: "Phone", value: "+92 368044668", href: "tel:+92 368044668", icon: <PhoneOutlined /> },
     { label: "Location", value: "Karachi , Pakistan", icon: <PlaceOutlined /> },
   ],
@@ -42,18 +42,25 @@ export default function Contact({ isDark = true, data = contactData }) {
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const messageData = { name, email, subject, message };
-    // Add your logic here (name, email, subject and message are in state)
-    const response = await handleSendMessage(messageData);
-    console.log("Message sent successfully:", response);
-    // Reset form fields after successful submission
-    setName("");
-    setEmail("");
-    setSubject("");
-    setMessage("");
+    setStatus(null);
+    setLoading(true);
+    try {
+      await handleSendMessage({ name, email, subject, message });
+      setStatus({ type: "success", text: "Thanks! Your message was sent successfully." });
+      setName("");
+      setEmail("");
+      setSubject("");
+      setMessage("");
+    } catch (error) {
+      setStatus({ type: "error", text: error.message || "Unable to send your message. Please try again." });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const focusRing = {
@@ -211,6 +218,14 @@ export default function Contact({ isDark = true, data = contactData }) {
             <Typography sx={{ mt: 0.5, color: colors.muted, fontSize: 14 }}>
               {data.formNote}
             </Typography>
+            {status && (
+              <Typography
+                role={status.type === "error" ? "alert" : "status"}
+                sx={{ mt: 2, color: status.type === "error" ? "#ef4444" : "#22c55e", fontSize: 14 }}
+              >
+                {status.text}
+              </Typography>
+            )}
 
             <Box sx={{ mt: 3, display: "grid", gap: 2.25 }}>
               <Box
@@ -267,6 +282,7 @@ export default function Contact({ isDark = true, data = contactData }) {
               <Button
                 type="submit"
                 endIcon={<SendRounded />}
+                disabled={loading}
                 sx={{
                   py: 1.3,
                   borderRadius: "12px",
@@ -280,7 +296,7 @@ export default function Contact({ isDark = true, data = contactData }) {
                   ...focusRing,
                 }}
               >
-                {data.submitLabel}
+                {loading ? <CircularProgress size={21} color="inherit" /> : data.submitLabel}
               </Button>
             </Box>
           </Box>

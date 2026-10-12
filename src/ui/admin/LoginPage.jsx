@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Box, Typography, TextField, Button } from "@mui/material";
+import { useState } from "react";
+import { Box, Typography, TextField, Button, CircularProgress } from "@mui/material";
 import { getColors } from "../getColors";
 import useAdmin from '../../hooks/useAdmin'
 
@@ -10,16 +10,19 @@ export default function Login({ isDark = true }) {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    // Add your login logic here (email and password are in state)
+    setError("");
+    setLoading(true);
     try {
-        const response = await handleAdminLogin(email, password);
-        // console.log('Login successful:', response);
-        // You can redirect the user or update the UI based on the response
+        await handleAdminLogin(email.trim(), password);
     } catch (error) {
-        console.error('Login failed:', error);
+        setError(error.message || "Unable to sign in. Please try again.");
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -70,6 +73,11 @@ export default function Login({ isDark = true }) {
         <Typography sx={{ mt: 1, color: colors.muted, fontSize: 15 }}>
           Sign in to manage your portfolio.
         </Typography>
+        {error && (
+          <Typography role="alert" sx={{ mt: 2, color: "#ef4444", fontSize: 14 }}>
+            {error}
+          </Typography>
+        )}
 
         <Box sx={{ mt: 3.5, display: "grid", gap: 2.25 }}>
           <TextField
@@ -98,6 +106,7 @@ export default function Login({ isDark = true }) {
 
           <Button
             type="submit"
+            disabled={loading}
             fullWidth
             sx={{
               mt: 0.5,
@@ -113,7 +122,7 @@ export default function Login({ isDark = true }) {
               "&:focus-visible": { outline: `2px solid ${colors.accent}`, outlineOffset: 2 },
             }}
           >
-            Sign in
+            {loading ? <CircularProgress size={21} color="inherit" /> : "Sign in"}
           </Button>
         </Box>
       </Box>

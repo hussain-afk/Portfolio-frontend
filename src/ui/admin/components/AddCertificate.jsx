@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Box, Typography, TextField, Chip } from "@mui/material";
 import { WorkspacePremiumOutlined } from "@mui/icons-material";
 import { getColors } from "../../getColors";

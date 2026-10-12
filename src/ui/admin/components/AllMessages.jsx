@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { Box, Typography, Button } from "@mui/material";
+import { useContext } from "react";
+import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import { ReplyRounded, MailOutlineRounded } from "@mui/icons-material";
 import { Context } from "../../../context/Context.jsx";
 import { getColors } from "../../getColors";
@@ -20,7 +20,7 @@ const formatDate = (value) => {
 
 function AllMessages({ isDark = true }) {
   const colors = getColors(isDark);
-  const { messages } = useContext(Context);
+  const { messages, messagesLoading, errors, refreshMessages } = useContext(Context) || {};
 
   // Newest first (if the messages have a createdAt date)
   const list = Array.isArray(messages)
@@ -40,7 +40,19 @@ function AllMessages({ isDark = true }) {
         <Typography sx={{ color: colors.muted, fontSize: 15 }}>({list.length})</Typography>
       </Box>
 
-      {list.length === 0 ? (
+      {messagesLoading && list.length === 0 ? (
+        <Box role="status" sx={{ display: "grid", justifyItems: "center", gap: 1.5, py: 8 }}>
+          <CircularProgress size={30} sx={{ color: colors.accent }} />
+          <Typography sx={{ color: colors.muted }}>Loading messages...</Typography>
+        </Box>
+      ) : errors?.messages && list.length === 0 ? (
+        <Box role="alert" sx={{ display: "grid", justifyItems: "center", gap: 1.5, py: 8, textAlign: "center" }}>
+          <Typography sx={{ color: colors.muted }}>{errors.messages}</Typography>
+          <Button onClick={refreshMessages} variant="outlined" sx={{ color: colors.text, borderColor: colors.border, textTransform: "none" }}>
+            Try again
+          </Button>
+        </Box>
+      ) : list.length === 0 ? (
         <Box
           sx={{
             display: "grid",
