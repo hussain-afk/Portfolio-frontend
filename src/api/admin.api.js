@@ -3,7 +3,7 @@ import axios from 'axios';
 // const defaultApiUrl = import.meta.env.DEV
 //   ? "http://localhost:4000"
 //   : "https://portfolio-backend-2-1i51.onrender.com";
-const API_URL = "https://portfolio-backend-2-1i51.onrender.com";
+const API_URL = "https://portfolio-backend-2-1i51.onrender.com/admin";
 
 const api = axios.create({
   baseURL: API_URL,
