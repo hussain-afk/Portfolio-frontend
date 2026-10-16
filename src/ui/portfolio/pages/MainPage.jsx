@@ -34,7 +34,7 @@ const MainPage = () => {
   const colors = getColors(isDark);
 
   // `loading` is true only during the first load of projects, in-working projects and certificates
-  const { loading } = useContext(Context) || {};
+  const { loading, hero } = useContext(Context) || {};
 
   return (
     <Box
@@ -61,7 +61,7 @@ const MainPage = () => {
       <Header isDark={isDark} onThemeToggle={() => setIsDark((prev) => !prev)} />
 
       <main>
-        <Hero isDark={isDark} />
+        <Hero isDark={isDark} data={hero} />
         <About isDark={isDark} />
         <InWorkingProject isDark={isDark} />
         <Projects isDark={isDark} />

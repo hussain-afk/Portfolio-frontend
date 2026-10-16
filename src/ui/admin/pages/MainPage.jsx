@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import {
   DashboardCustomizeOutlined,
@@ -8,12 +8,15 @@ import {
   MailOutlineRounded,
   OpenInNewRounded,
   ChevronRightRounded,
+  TuneRounded,
 } from "@mui/icons-material";
 import { getColors } from "../../getColors";
 import AddProject from "../components/AddProject";
 import AddInWorkingProject from "../components/AddInWorkingProject";
 import AddCertificate from "../components/AddCertificate";
 import AllMessages from "../components/AllMessages";
+import HeroSettings from "../components/HeroSettings";
+import { Context } from "../../../context/Context.jsx";
 
 // ---- Edit the dashboard here --------------------------------------------
 // The tabs of the page. Add a new item here to add a new tab
@@ -21,6 +24,14 @@ import AllMessages from "../components/AllMessages";
 // `group` is the small title above a set of tabs in the side menu.
 // The first tab is NOT automatically the default: see useState below.
 const TABS = [
+  {
+    id: "hero",
+    group: "Customize",
+    label: "Hero section",
+    icon: TuneRounded,
+    title: "Customize hero section",
+    subtitle: "Change your headline, intro and availability badge.",
+  },
   {
     id: "messages",
     group: "Inbox",
@@ -127,6 +138,7 @@ function TabButton({ tab, active, vertical, colors, onSelect }) {
 
 export default function AddContent({ isDark = true }) {
   const colors = getColors(isDark);
+  const { hero } = useContext(Context) || {};
   const [tab, setTab] = useState("messages"); // tab shown first
 
   const current = TABS.find((item) => item.id === tab) || TABS[0];
@@ -321,6 +333,15 @@ export default function AddContent({ isDark = true }) {
           {/* ================= Panels =================
               All panels stay on the page (only hidden), so what you typed
               in a form is not lost when you switch tabs. */}
+          <Box
+            role="tabpanel"
+            id="panel-hero"
+            aria-labelledby="tab-hero"
+            sx={{ display: tab === "hero" ? "block" : "none" }}
+          >
+            <HeroSettings key={hero?._id || "hero-default"} isDark={isDark} />
+          </Box>
+
           <Box
             role="tabpanel"
             id="panel-messages"

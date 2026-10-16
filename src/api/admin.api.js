@@ -1,7 +1,9 @@
 import axios from 'axios';
 
-const API_URL = "https://portfolio-backend-2-1i51.onrender.com/admin"; // Replace with your backend API URL
-  
+// const defaultApiUrl = import.meta.env.DEV
+//   ? "http://localhost:4000"
+//   : "https://portfolio-backend-2-1i51.onrender.com";
+const API_URL = "https://portfolio-backend-2-1i51.onrender.com";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -23,6 +25,33 @@ export const login = async (email, password) => {
     return response.data;
   } catch (error) {
     throw getApiError(error, 'Login failed');
+  }
+};
+
+export const getSession = async () => {
+  try {
+    const response = await api.get('/session');
+    return response.data;
+  } catch (error) {
+    throw getApiError(error, 'Session check failed');
+  }
+};
+
+export const getHero = async () => {
+  try {
+    const response = await api.get('/hero');
+    return response.data;
+  } catch (error) {
+    throw getApiError(error, 'Failed to fetch hero settings');
+  }
+};
+
+export const updateHero = async (heroData) => {
+  try {
+    const response = await api.put('/hero', heroData);
+    return response.data;
+  } catch (error) {
+    throw getApiError(error, 'Failed to update hero settings');
   }
 };
 

@@ -1,12 +1,30 @@
+import { lazy, Suspense, useContext } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import MainPortfolioPAge from '../ui/portfolio/pages/MainPage'
-import AdminLoginPage from '../ui/admin/LoginPage'
-import AdminMainPage from '../ui/admin/pages/MainPage'
-import { useContext } from 'react'
 import { Context } from '../context/Context.jsx'
 
-const Routing = () => {
-    const AdminProtectedRoute = ({ children }) => {
+const MainPortfolioPage = lazy(() => import('../ui/portfolio/pages/MainPage'))
+const AdminLoginPage = lazy(() => import('../ui/admin/LoginPage'))
+const AdminMainPage = lazy(() => import('../ui/admin/pages/MainPage'))
+
+const RouteFallback = () => (
+    <div
+        role="status"
+        aria-live="polite"
+        style={{
+            minHeight: '100vh',
+            display: 'grid',
+            placeItems: 'center',
+            padding: '24px',
+            color: '#94a3b8',
+            background: '#0b1018',
+            fontFamily: 'Inter, system-ui, sans-serif',
+        }}
+    >
+        Loading portfolio...
+    </div>
+)
+
+const AdminProtectedRoute = ({ children }) => {
         const { user } = useContext(Context)
 
         if (!user) {
@@ -17,13 +35,17 @@ const Routing = () => {
         }
 
         return children
-    }
+}
+
+const Routing = () => {
     return (
-        <Routes>
-            <Route path="/" element={<MainPortfolioPAge />} />
-            <Route path="/admin/login" element={<AdminLoginPage />} />
-            <Route path="/admin" element={<AdminProtectedRoute><AdminMainPage /></AdminProtectedRoute>} />
-        </Routes>
+        <Suspense fallback={<RouteFallback />}>
+            <Routes>
+                <Route path="/" element={<MainPortfolioPage />} />
+                <Route path="/admin/login" element={<AdminLoginPage />} />
+                <Route path="/admin" element={<AdminProtectedRoute><AdminMainPage /></AdminProtectedRoute>} />
+            </Routes>
+        </Suspense>
     )
 }
 export default Routing

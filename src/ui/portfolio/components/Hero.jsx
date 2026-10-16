@@ -42,8 +42,15 @@ const lineIn = keyframes`
   to   { opacity: 1; transform: translateX(0); }
 `;
 
-export default function Hero({ isDark = true }) {
+export default function Hero({ isDark = true, data }) {
   const colors = getColors(isDark);
+  const content = {
+    ...profile,
+    ...data,
+    roles: data?.autoWritingText
+      ? data.autoWritingText.split(",").map((item) => item.trim()).filter(Boolean)
+      : ["Frontend Developer", "Backend Developer", "MERN Stack Developer"],
+  };
 
   const focusRing = {
     "&:focus-visible": { outline: `2px solid ${colors.accent}`, outlineOffset: 2 },
@@ -96,7 +103,7 @@ export default function Hero({ isDark = true }) {
                   bgcolor: colors.success,
                 }}
               />
-              Available for new projects
+              {content.avalaible === false ? "Currently unavailable" : "Available for new projects"}
             </Box>
 
             <Typography
@@ -110,7 +117,7 @@ export default function Hero({ isDark = true }) {
                 maxWidth: 620,
               }}
             >
-              {profile.headline}
+              {content.mainHeading || content.headline}
               
             </Typography>
 
@@ -123,7 +130,7 @@ export default function Hero({ isDark = true }) {
                 lineHeight: 1.7,
               }}
             >
-              {profile.intro}
+              {content.paragraph || content.intro}
               
             </Typography>
             <Typography
@@ -133,7 +140,7 @@ export default function Hero({ isDark = true }) {
                 I am a{" "}
                 <Box component="span" sx={{ color: colors.accent }}>
                   <Typewriter
-                    words={["Frontend Developer", "Backend Developer", "MERN Stack Developer"]}
+                    words={content.roles}
                     loop={0}            // 0 ka matlab hamesha chalta rahe
                     cursor
                     cursorStyle="|"
@@ -169,7 +176,7 @@ export default function Hero({ isDark = true }) {
 
               <Button
                 component="a"
-                href={profile.cvHref}
+                href={content.cvHref}
                 download
                 startIcon={<DownloadRounded />}
                 sx={{
@@ -191,7 +198,7 @@ export default function Hero({ isDark = true }) {
 
             {/* Social links */}
             <Box sx={{ mt: 4, display: "flex", alignItems: "center", gap: 1 }}>
-              {profile.socials.map((item) => (
+              {content.socials.map((item) => (
                 <IconButton
                   key={item.label}
                   component="a"
