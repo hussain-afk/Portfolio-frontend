@@ -1,5 +1,6 @@
 import { Box, Container, Typography, Button, IconButton, Chip } from "@mui/material";
 import { keyframes } from "@mui/material/styles";
+import resume from "../../../assets/Resume.pdf";
 import {
   ArrowDownwardRounded,
   DownloadRounded,
@@ -9,6 +10,7 @@ import {
 } from "@mui/icons-material";
 import { getColors } from "../../getColors";
 import { Typewriter } from "react-simple-typewriter";
+import { links } from '../../../config/config.js'
 
 // ---- Edit your details here -------------------------------------------
 const profile = {
@@ -17,9 +19,9 @@ const profile = {
     "I'm Hussain, a Front-End & MERN Stack Developer based in Karachi. I work with React and Material UI to turn ideas into clean, responsive products that are easy to use and easy to maintain.",
   cvHref: "/Hussain-CV.pdf", // put your CV inside the /public folder
   socials: [
-    { label: "GitHub", href: "https://github.com/your-username", icon: <GitHub /> },
-    { label: "LinkedIn", href: "https://linkedin.com/in/your-username", icon: <LinkedIn /> },
-    { label: "Email", href: "mailto:you@example.com", icon: <MailOutlineRounded /> },
+    { label: "GitHub", href: links.github, icon: <GitHub /> },
+    { label: "LinkedIn", href: links.linkedin, icon: <LinkedIn /> },
+    { label: "Email", href: links.email, icon: <MailOutlineRounded /> },
   ],
   tech: ["React", "JavaScript", "Material UI", "HTML & CSS", "Git"],
 };
@@ -176,7 +178,7 @@ export default function Hero({ isDark = true, data }) {
 
               <Button
                 component="a"
-                href={content.cvHref}
+                href={resume}
                 download
                 startIcon={<DownloadRounded />}
                 sx={{

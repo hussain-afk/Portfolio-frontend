@@ -6,6 +6,7 @@ import {
   MailOutlineRounded,
 } from "@mui/icons-material";
 import { getColors } from "../../getColors";
+import { links } from '../../../config/config.js'
 
 // ======================================================================
 // EDIT ONLY THIS OBJECT to customize the Footer.
@@ -37,9 +38,9 @@ const footerData = {
     {
       title: "Connect",
       links: [
-        { label: "GitHub", href: "https://github.com/your-username", icon: <GitHub /> },
-        { label: "LinkedIn", href: "https://linkedin.com/in/your-username", icon: <LinkedIn /> },
-        { label: "you@example.com", href: "mailto:you@example.com", icon: <MailOutlineRounded /> },
+        { label: "GitHub", href: links.github, icon: <GitHub /> },
+        { label: "LinkedIn", href: links.linkedin, icon: <LinkedIn /> },
+        { label: "Email", href: links.email, icon: <MailOutlineRounded /> },
       ],
     },
   ],

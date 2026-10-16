@@ -10,6 +10,7 @@ import {
 } from "@mui/icons-material";
 import  useAdmin  from "../../../hooks/useAdmin";
 import { getColors } from "../../getColors";
+import { links } from '../../../config/config.js'
 
 // ======================================================================
 // EDIT ONLY THIS OBJECT to change the text, contact details and links.
@@ -25,8 +26,8 @@ const contactData = {
     { label: "Location", value: "Karachi , Pakistan", icon: <PlaceOutlined /> },
   ],
   socials: [
-    { label: "GitHub", href: "https://github.com/your-username", icon: <GitHub /> },
-    { label: "LinkedIn", href: "https://linkedin.com/in/your-username", icon: <LinkedIn /> },
+    { label: "GitHub", href: links.github, icon: <GitHub /> },
+    { label: "LinkedIn", href: links.linkedin, icon: <LinkedIn /> },
   ],
   formTitle: "Send a message",
   formNote: "I usually reply within 24 hours.",
