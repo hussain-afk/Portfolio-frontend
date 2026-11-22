@@ -1,9 +1,10 @@
 import axios from 'axios';
 
-// const defaultApiUrl = import.meta.env.DEV
-//   ? "http://localhost:4000"
-//   : "https://portfolio-backend-2-1i51.onrender.com";
-const API_URL = "https://portfolio-backend-2-1i51.onrender.com/admin";
+const API_URL =  "https://portfolio-backend-2-1i51.onrender.com/admin";
+  // import.meta.env.VITE_API_URL ||
+  // (import.meta.env.DEV
+  //   ? "http://localhost:4000/admin"
+  //   : "https://portfolio-backend-2-1i51.onrender.com/admin");
 
 const api = axios.create({
   baseURL: API_URL,
@@ -43,6 +44,24 @@ export const getHero = async () => {
     return response.data;
   } catch (error) {
     throw getApiError(error, 'Failed to fetch hero settings');
+  }
+};
+
+export const getPortfolioSections = async () => {
+  try {
+    const response = await api.get('/portfolio-sections');
+    return response.data;
+  } catch (error) {
+    throw getApiError(error, 'Failed to fetch portfolio sections');
+  }
+};
+
+export const updatePortfolioSections = async (sections) => {
+  try {
+    const response = await api.put('/portfolio-sections', sections);
+    return response.data;
+  } catch (error) {
+    throw getApiError(error, 'Failed to update portfolio sections');
   }
 };
 

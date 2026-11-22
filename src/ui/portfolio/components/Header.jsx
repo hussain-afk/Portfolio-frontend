@@ -26,6 +26,8 @@ import { getColors } from "../../getColors";
 const navLinks = [
   { label: "Home", href: "#home" },
   { label: "About", href: "#about" },
+  { label: "Experience", href: "#experience" },
+  { label: "Services", href: "#services" },
   { label: "Projects", href: "#projects" },
   { label: "Skills", href: "#skills" },
   { label: "Certificates", href: "#certifications" },
@@ -77,11 +79,6 @@ export default function Header({ isDark = true, onThemeToggle }) {
     sections.forEach((section) => observer.observe(section));
     return () => observer.disconnect();
   }, []);
-
-  // Close the mobile menu when the screen becomes big (desktop navigation takes over)
-  useEffect(() => {
-    if (!mobile) setMenuOpen(false);
-  }, [mobile]);
 
   // Press Escape to close the mobile menu
   useEffect(() => {

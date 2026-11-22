@@ -32,7 +32,7 @@ const aboutData = {
     { label: "Role", value: "FullStack Developer", icon: <WorkOutlineRounded /> },
     { label: "Education", value: "DAE in Software Technology", icon: <SchoolOutlined /> },
     { label: "Languages", value: "Urdu", icon: <TranslateRounded /> },
-    { label: "Email", value: "hussainkadir245@gmail.com", icon: <MailOutlineRounded />, href: "mailto:you@example.com" },
+    { label: "Email", value: "hussainkadir245@gmail.com", icon: <MailOutlineRounded />, href: "mailto:hussainkadir245@gmail.com" },
   ],
 
   // What you focus on

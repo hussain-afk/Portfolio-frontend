@@ -15,6 +15,7 @@ import {
   getMessages,
   getHero,
   getSession,
+  getPortfolioSections,
 } from "../api/admin.api.js";
 
 // Save this file as context/Context.jsx (the same place as before).
@@ -36,6 +37,7 @@ const MAX_RETRIES = 2; // so a request is tried up to 3 times in total
 // and put it in the value at the bottom. If visitors may see it, also add it to PUBLIC.
 const RESOURCES = {
   hero: { api: getHero, key: "hero", label: "Hero settings" },
+  portfolioSections: { api: getPortfolioSections, key: "portfolioSections", label: "Portfolio sections" },
   projects: { api: getProjects, key: "projects", label: "Projects" },
   inWorkingProjects: {
     api: getInWorkingProjects,
@@ -48,7 +50,7 @@ const RESOURCES = {
 
 // Lists that every visitor can see. They load when the app opens.
 // (Messages are NOT here: they are private and only load for a logged-in user.)
-const PUBLIC = ["hero", "projects", "inWorkingProjects", "certificates"];
+const PUBLIC = ["hero", "portfolioSections", "projects", "inWorkingProjects", "certificates"];
 
 // { projects: null, inWorkingProjects: null, ... }  (one empty slot per list)
 const EMPTY_ERRORS = Object.fromEntries(Object.keys(RESOURCES).map((name) => [name, null]));
@@ -115,6 +117,12 @@ const ContextProvider = ({ children }) => {
 
   const [projects, setProjects] = useState([]);
   const [hero, setHero] = useState(null);
+  const [portfolioSections, setPortfolioSections] = useState({
+    experiences: [],
+    services: [],
+    testimonials: [],
+    faqs: [],
+  });
   const [inWorkingProjects, setInWorkingProjects] = useState([]);
   const [certificates, setCertificates] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -143,6 +151,7 @@ const ContextProvider = ({ children }) => {
     const setters = {
       projects: setProjects,
       hero: setHero,
+      portfolioSections: setPortfolioSections,
       inWorkingProjects: setInWorkingProjects,
       certificates: setCertificates,
       messages: setMessages,
@@ -158,8 +167,11 @@ const ContextProvider = ({ children }) => {
         // Messages are private: if the user logged out while loading, throw the result away
         if (name === "messages" && !userRef.current) return;
 
+        const result = response?.data ?? response;
         setters[name](
-          name === "hero" ? response?.data ?? response : extractList(response, key)
+          name === "hero" || name === "portfolioSections"
+            ? result
+            : extractList(response, key)
         );
         setErrors((prev) => (prev[name] ? { ...prev, [name]: null } : prev));
       } catch (error) {
@@ -243,6 +255,8 @@ const ContextProvider = ({ children }) => {
       setProjects,
       hero,
       setHero,
+      portfolioSections,
+      setPortfolioSections,
 
       inWorkingProjects,
       setInWorkingProjects,
@@ -266,6 +280,7 @@ const ContextProvider = ({ children }) => {
       user,
       projects,
       hero,
+      portfolioSections,
       inWorkingProjects,
       certificates,
       messages,

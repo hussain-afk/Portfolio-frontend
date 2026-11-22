@@ -59,14 +59,12 @@ export default function Loader({ loading = true, isDark = true, minDuration = 60
   const [mounted, setMounted] = useState(true); // is the screen on the page?
   const [leaving, setLeaving] = useState(false); // is it fading out?
   const [avatarFailed, setAvatarFailed] = useState(false); // photo could not load: show "H" instead
-  const startedAt = useRef(Date.now());
+  const startedAt = useRef(0);
 
   // Show while loading. When loading ends: wait for the minimum time, fade out, then remove.
   useEffect(() => {
     if (loading) {
       startedAt.current = Date.now();
-      setMounted(true);
-      setLeaving(false);
       return undefined;
     }
 

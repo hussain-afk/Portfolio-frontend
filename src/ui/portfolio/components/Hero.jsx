@@ -17,7 +17,6 @@ const profile = {
   headline: "I build fast, accessible interfaces for the web.",
   intro:
     "I'm Hussain, a Front-End & MERN Stack Developer based in Karachi. I work with React and Material UI to turn ideas into clean, responsive products that are easy to use and easy to maintain.",
-  cvHref: "/Hussain-CV.pdf", // put your CV inside the /public folder
   socials: [
     { label: "GitHub", href: links.github, icon: <GitHub /> },
     { label: "LinkedIn", href: links.linkedin, icon: <LinkedIn /> },

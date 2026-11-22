@@ -9,6 +9,7 @@ import {
   OpenInNewRounded,
   ChevronRightRounded,
   TuneRounded,
+  ViewListRounded,
 } from "@mui/icons-material";
 import { getColors } from "../../getColors";
 import AddProject from "../components/AddProject";
@@ -17,6 +18,7 @@ import AddCertificate from "../components/AddCertificate";
 import AllMessages from "../components/AllMessages";
 import HeroSettings from "../components/HeroSettings";
 import { Context } from "../../../context/Context.jsx";
+import PortfolioSectionsSettings from "../components/PortfolioSectionsSettings";
 
 // ---- Edit the dashboard here --------------------------------------------
 // The tabs of the page. Add a new item here to add a new tab
@@ -31,6 +33,14 @@ const TABS = [
     icon: TuneRounded,
     title: "Customize hero section",
     subtitle: "Change your headline, intro and availability badge.",
+  },
+  {
+    id: "sections",
+    group: "Customize",
+    label: "Portfolio sections",
+    icon: ViewListRounded,
+    title: "Manage portfolio sections",
+    subtitle: "Update experience, services, testimonials and FAQ content.",
   },
   {
     id: "messages",
@@ -340,6 +350,15 @@ export default function AddContent({ isDark = true }) {
             sx={{ display: tab === "hero" ? "block" : "none" }}
           >
             <HeroSettings key={hero?._id || "hero-default"} isDark={isDark} />
+          </Box>
+
+          <Box
+            role="tabpanel"
+            id="panel-sections"
+            aria-labelledby="tab-sections"
+            sx={{ display: tab === "sections" ? "block" : "none" }}
+          >
+            <PortfolioSectionsSettings isDark={isDark} />
           </Box>
 
           <Box
